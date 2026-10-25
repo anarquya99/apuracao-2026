@@ -1,8 +1,13 @@
-<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Apuração 2026 | Conexão Sertão</title><style>:root{font-family:system-ui,Arial;background:#f4f5f8;color:#192033}*{box-sizing:border-box}body{margin:0}header{background:#101827;color:white;padding:22px max(18px,calc((100vw - 1100px)/2))}header strong{color:#ff9015}main{max-width:1100px;margin:auto;padding:22px 16px}h1{font-size:clamp(25px,4vw,42px);margin:8px 0}p{line-height:1.5}.muted{color:#667085}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:14px}.card{background:white;border:1px solid #e3e7ee;border-radius:18px;padding:20px;margin-bottom:15px;box-shadow:0 3px 14px #18263c08}.tag{display:inline-block;background:#fff2e1;color:#9b5000;border-radius:30px;padding:7px 12px;font-size:12px;font-weight:700}.bar{height:13px;background:#e7eaf0;border-radius:12px;overflow:hidden;margin:12px 0}.fill{background:#ff8914;height:100%;width:0}button,select{font:inherit;border:1px solid #d8dce5;border-radius:10px;background:white;padding:11px;cursor:pointer}button.active{background:#ff8914;color:#111;border-color:#ff8914}.tabs{display:flex;gap:7px;flex-wrap:wrap;margin:16px 0}.candidate{display:flex;justify-content:space-between;gap:10px;border-bottom:1px solid #eef0f4;padding:13px 0}.candidate:last-child{border:0}.big{font-size:24px;font-weight:800}.small{font-size:12px;color:#687285}#map{display:grid;grid-template-columns:repeat(auto-fit,minmax(72px,1fr));gap:7px}.state{padding:14px 3px;text-align:center;background:#f1f3f7;border-radius:9px;font-weight:700}.state.selected{background:#ffedd5;outline:2px solid #ff8914}footer{padding:30px 18px;text-align:center;color:#697387;font-size:13px}a{color:#b25c00}#notice{border-left:4px solid #ff9015;background:#fff7eb;padding:12px;border-radius:7px}</style></head><body><header><div style="font-size:22px;font-weight:900">CONEXÃO <strong>SERTÃO</strong></div><div style="opacity:.7;font-size:13px">Cobertura especial • Eleições 2026</div></header><main><span class="tag">SEGUNDO TURNO • 25/10/2026</span><h1>Central de Apuração</h1><p class="muted">Brasil, Pernambuco e Sertão do Araripe. Resultados oficiais somente quando recebidos e validados.</p><div id="notice" role="status">Aguardando conexão com a fonte oficial do TSE. Nenhum resultado foi carregado.</div><div class="tabs"><button class="active" data-scope="br">Brasil</button><button data-scope="pe">Pernambuco</button><button data-scope="araripe">Sertão do Araripe</button></div><section class="card"><div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap"><h2 id="scope-title">Brasil • Presidente</h2><span id="updated" class="small">Sem atualização confirmada</span></div><div id="results"><div class="candidate"><div><b>Lula</b><div class="small">Aguardando dados</div></div><div class="big">...</div></div><div class="candidate"><div><b>Flávio Bolsonaro</b><div class="small">Aguardando dados</div></div><div class="big">...</div></div></div><p class="small">Seções totalizadas: <b id="progress">Não informado</b></p><div class="bar"><div id="progressbar" class="fill"></div></div></section><section class="card" id="region"><h2>Municípios do Araripe</h2><p class="muted">Selecione uma cidade para acompanhar sua apuração.</p><select id="city"><option>Ipubi</option><option>Araripina</option><option>Ouricuri</option><option>Trindade</option><option>Exu</option><option>Bodocó</option><option>Granito</option><option>Moreilândia</option><option>Santa Cruz</option><option>Santa Filomena</option></select><p id="city-status" class="small">Aguardando resultados municipais oficiais.</p></section><section class="card"><h2>Brasil por estado</h2><p class="muted">Selecione uma unidade da Federação. Os quadrinhos são apenas navegação, não representam vencedores.</p><div id="map"></div><p id="state-status" class="small">Selecione um estado para consultar os resultados quando disponíveis.</p></section><section class="card"><h2>Transparência dos dados</h2><p>Esta página não apresenta números de demonstração como se fossem votos reais. A consulta automática de Brasil e Pernambuco utiliza arquivos JSON oficiais do TSE. Os dados municipais serão disponibilizados somente após validação das respectivas fontes.</p><p><a href="https://resultados.tse.jus.br/" target="_blank" rel="noopener">Consultar apuração oficial do TSE</a></p><p class="small">Fonte: Tribunal Superior Eleitoral. Consultas de Brasil e Pernambuco a cada 30 segundos enquanto a página estiver aberta.</p></section></main><footer>Conexão Sertão • Cobertura eleitoral independente</footer><script>const states='AC AL AP AM BA CE DF ES GO MA MT MS MG PA PB PR PE PI RJ RN RS RO RR SC SP SE TO'.split(' ');let scope='br';document.querySelectorAll('[data-scope]').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('[data-scope]').forEach(x=>x.classList.remove('active'));b.classList.add('active');scope=b.dataset.scope;document.getElementById('scope-title').textContent=({br:'Brasil',pe:'Pernambuco',araripe:'Sertão do Araripe'})[scope]+' • Presidente';}));document.getElementById('city').addEventListener('change',e=>document.getElementById('city-status').textContent=e.target.value+': aguardando resultados oficiais.');document.getElementById('map').innerHTML=states.map(s=>'<button class="state" data-uf="'+s+'">'+s+'</button>').join('');document.querySelectorAll('[data-uf]').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('[data-uf]').forEach(x=>x.classList.remove('selected'));b.classList.add('selected');document.getElementById('state-status').textContent=b.dataset.uf+': aguardando resultados oficiais.';}));
+<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Apuração 2026 | Conexão Sertão</title><style>:root{font-family:system-ui,Arial;background:#f4f5f8;color:#192033}*{box-sizing:border-box}body{margin:0}header{background:#101827;color:white;padding:22px max(18px,calc((100vw - 1100px)/2))}header strong{color:#ff9015}main{max-width:1100px;margin:auto;padding:22px 16px}h1{font-size:clamp(25px,4vw,42px);margin:8px 0}p{line-height:1.5}.muted{color:#667085}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:14px}.card{background:white;border:1px solid #e3e7ee;border-radius:18px;padding:20px;margin-bottom:15px;box-shadow:0 3px 14px #18263c08}.tag{display:inline-block;background:#fff2e1;color:#9b5000;border-radius:30px;padding:7px 12px;font-size:12px;font-weight:700}.bar{height:13px;background:#e7eaf0;border-radius:12px;overflow:hidden;margin:12px 0}.fill{background:#ff8914;height:100%;width:0}button,select{font:inherit;border:1px solid #d8dce5;border-radius:10px;background:white;padding:11px;cursor:pointer}button.active{background:#ff8914;color:#111;border-color:#ff8914}.tabs{display:flex;gap:7px;flex-wrap:wrap;margin:16px 0}.candidate{display:flex;justify-content:space-between;gap:10px;border-bottom:1px solid #eef0f4;padding:13px 0}.candidate:last-child{border:0}.big{font-size:24px;font-weight:800}.small{font-size:12px;color:#687285}#map{display:grid;grid-template-columns:repeat(auto-fit,minmax(72px,1fr));gap:7px}.state{padding:14px 3px;text-align:center;background:#f1f3f7;border-radius:9px;font-weight:700}.state.selected{background:#ffedd5;outline:2px solid #ff8914}footer{padding:30px 18px;text-align:center;color:#697387;font-size:13px}a{color:#b25c00}#notice{border-left:4px solid #ff9015;background:#fff7eb;padding:12px;border-radius:7px}</style></head><body><header><div style="font-size:22px;font-weight:900">CONEXÃO <strong>SERTÃO</strong></div><div style="opacity:.7;font-size:13px">Cobertura especial • Eleições 2026</div></header><main><span class="tag">SEGUNDO TURNO • 25/10/2026</span><h1>Central de Apuração</h1><p class="muted">Brasil, Pernambuco e Sertão do Araripe. Resultados oficiais somente quando recebidos e validados.</p><div id="notice" role="status">Aguardando conexão com a fonte oficial do TSE. Nenhum resultado foi carregado.</div><div class="tabs"><button class="active" data-scope="br">Brasil</button><button data-scope="pe">Pernambuco</button><button data-scope="araripe">Sertão do Araripe</button></div><section class="card"><div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap"><h2 id="scope-title">Brasil • Presidente</h2><span id="updated" class="small">Sem atualização confirmada</span></div><div id="results"><div class="candidate"><div><b>Lula</b><div class="small">Aguardando dados</div></div><div class="big">...</div></div><div class="candidate"><div><b>Flávio Bolsonaro</b><div class="small">Aguardando dados</div></div><div class="big">...</div></div></div><p class="small">Seções totalizadas: <b id="progress">Não informado</b></p><div class="bar"><div id="progressbar" class="fill"></div></div></section><section class="card" id="region"><h2>Municípios do Araripe</h2><p class="muted">Selecione uma cidade para acompanhar sua apuração.</p><select id="city"><option>Ipubi</option><option>Araripina</option><option>Ouricuri</option><option>Trindade</option><option>Exu</option><option>Bodocó</option><option>Granito</option><option>Moreilândia</option><option>Santa Cruz</option><option>Santa Filomena</option></select><p id="city-status" class="small">Aguardando resultados municipais oficiais.</p></section><section class="card"><h2>Brasil por estado</h2><p class="muted">Selecione uma unidade da Federação. Os quadrinhos são apenas navegação, não representam vencedores.</p><div id="map"></div><p id="state-status" class="small">Selecione um estado para consultar os resultados quando disponíveis.</p></section><section class="card"><h2>Transparência dos dados</h2><p>Esta página não apresenta números de demonstração como se fossem votos reais. As consultas automáticas utilizam arquivos JSON oficiais do TSE. Os códigos municipais são identificados no cadastro oficial; resultados só são exibidos quando a estrutura do arquivo é validada.</p><p><a href="https://resultados.tse.jus.br/" target="_blank" rel="noopener">Consultar apuração oficial do TSE</a></p><p class="small">Fonte: Tribunal Superior Eleitoral. Consultas automáticas de Brasil, Pernambuco e município selecionado a cada 30 segundos enquanto a página estiver aberta.</p></section></main><footer>Conexão Sertão • Cobertura eleitoral independente</footer><script>const states='AC AL AP AM BA CE DF ES GO MA MT MS MG PA PB PR PE PI RJ RN RS RO RR SC SP SE TO'.split(' ');let scope='br';document.querySelectorAll('[data-scope]').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('[data-scope]').forEach(x=>x.classList.remove('active'));b.classList.add('active');scope=b.dataset.scope;document.getElementById('scope-title').textContent=({br:'Brasil',pe:'Pernambuco',araripe:'Sertão do Araripe'})[scope]+' • Presidente';}));document.getElementById('city').addEventListener('change',e=>document.getElementById('city-status').textContent=e.target.value+': aguardando resultados oficiais.');document.getElementById('map').innerHTML=states.map(s=>'<button class="state" data-uf="'+s+'">'+s+'</button>').join('');document.querySelectorAll('[data-uf]').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('[data-uf]').forEach(x=>x.classList.remove('selected'));b.classList.add('selected');document.getElementById('state-status').textContent=b.dataset.uf+': aguardando resultados oficiais.';}));
 
-// Consultas oficiais do TSE para Brasil e Pernambuco.
-const tseUrls={br:'https://resultados.tse.jus.br/oficial/ele2026/6258/dados/br/br-c0001-e006258-u.json',pe:'https://resultados.tse.jus.br/oficial/ele2026/6258/dados/pe/pe-c0001-e006258-u.json'};
-const tseData={};const tseBusy={};const tseFmt=n=>Number(n).toLocaleString('pt-BR');
+
+// Apuração presidencial oficial: Brasil, Pernambuco e municípios do Araripe.
+const tseBase='https://resultados.tse.jus.br/oficial/ele2026/6258/';
+const tseUrls={br:tseBase+'dados/br/br-c0001-e006258-u.json',pe:tseBase+'dados/pe/pe-c0001-e006258-u.json'};
+const cityNames=['Ipubi','Araripina','Ouricuri','Trindade','Exu','Bodocó','Granito','Moreilândia','Santa Cruz','Santa Filomena'];
+const tseData={};const tseBusy={};let cityRegistry=null,cityRegistryPromise=null;
+const tseFmt=n=>Number(n).toLocaleString('pt-BR');
+const normalizeCity=s=>String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toUpperCase().trim();
 function parseTse(d){
  const office=(d.carg||[]).find(x=>String(x.cd)==='1');
  const candidates=(office?.agr||[]).flatMap(a=>(a.par||[]).flatMap(p=>p.cand||[]));
@@ -13,16 +18,42 @@ function parseTse(d){
  if(votes.some(v=>!Number.isFinite(v)||v<0)||(sections===0&&votes.some(v=>v>0)))throw Error('Votos inválidos');
  return {lula,flavio,sections,totalSections,percent:sections/totalSections*100,updated:(d.dt||d.dg||'')+' '+(d.ht||d.hg||'')};
 }
-function showTseScope(){
- if(scope==='araripe'){
-  document.getElementById('results').innerHTML='<p class="muted">Resultados municipais ainda em validação. Nenhum número regional será exibido sem confirmação da fonte.</p>';
-  document.getElementById('progress').textContent='Não informado';
-  document.getElementById('progressbar').style.width='0';
-  document.getElementById('updated').textContent='Sem atualização regional validada';
-  document.getElementById('notice').textContent='Resultados do Sertão do Araripe ainda em integração.';
-  return;
+function findMunicipalCodes(root){
+ const found={};const seen=new Set();
+ function walk(v,depth){
+  if(depth>12||!v||typeof v!=='object'||seen.has(v))return;seen.add(v);
+  if(Array.isArray(v)){for(const x of v)walk(x,depth+1);return}
+  const entries=Object.entries(v);
+  const named=entries.find(([k,x])=>typeof x==='string'&&cityNames.some(n=>normalizeCity(x)===normalizeCity(n)));
+  if(named){
+   const code=entries.find(([k,x])=>/^cd$/i.test(k)&&/^\d{5}$/.test(String(x)));
+   if(code)found[normalizeCity(named[1])]=String(code[1]);
+  }
+  for(const [,x] of entries)if(x&&typeof x==='object')walk(x,depth+1);
  }
- const d=tseData[scope];
+ walk(root,0);return found;
+}
+async function getCityRegistry(){
+ if(cityRegistry)return cityRegistry;
+ if(!cityRegistryPromise)cityRegistryPromise=(async()=>{
+  const r=await fetch(tseBase+'config/mun-e006258-cm.json?t='+Date.now(),{cache:'no-store'});
+  if(!r.ok)throw Error('Cadastro municipal HTTP '+r.status);
+  const result=findMunicipalCodes(await r.json());
+  if(!result['IPUBI']||result['IPUBI']!=='24457')throw Error('Código de Ipubi não confere');
+  cityRegistry=result;return result;
+ })().catch(e=>{cityRegistryPromise=null;throw e});
+ return cityRegistryPromise;
+}
+function drawTse(d){
+ document.getElementById('results').innerHTML=[['Lula',d.lula],['Flávio Bolsonaro',d.flavio]].map(([name,c])=>'<div class="candidate"><div><b>'+name+'</b><div class="small">'+String(c.pvap||'0,00')+'% dos votos válidos</div></div><div class="big">'+tseFmt(c.vap||0)+'</div></div>').join('');
+ document.getElementById('progress').textContent=tseFmt(d.sections)+' de '+tseFmt(d.totalSections)+' ('+d.percent.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2})+'%)';
+ document.getElementById('progressbar').style.width=d.percent+'%';
+ document.getElementById('updated').textContent='Arquivo TSE: '+d.updated;
+}
+function showTseScope(){
+ const city=document.getElementById('city').value;
+ const key=scope==='araripe'?'city:'+city:scope;
+ const d=tseData[key];
  if(!d){
   document.getElementById('results').innerHTML='<p class="muted">Aguardando dados oficiais do TSE.</p>';
   document.getElementById('progress').textContent='Não informado';
@@ -31,23 +62,42 @@ function showTseScope(){
   document.getElementById('notice').textContent='Consultando a fonte oficial do TSE...';
   return;
  }
- document.getElementById('results').innerHTML=[['Lula',d.lula],['Flávio Bolsonaro',d.flavio]].map(([name,c])=>'<div class="candidate"><div><b>'+name+'</b><div class="small">'+(d.sections?String(c.pvap||'0,00'):'0,00')+'% dos votos válidos</div></div><div class="big">'+tseFmt(c.vap||0)+'</div></div>').join('');
- document.getElementById('progress').textContent=tseFmt(d.sections)+' de '+tseFmt(d.totalSections)+' ('+d.percent.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2})+'%)';
- document.getElementById('progressbar').style.width=d.percent+'%';
- document.getElementById('updated').textContent='Arquivo TSE: '+d.updated;
- document.getElementById('notice').textContent=d.sections===0?'Conexão oficial ativa. Aguardando início da totalização '+(scope==='br'?'nacional.':'em Pernambuco.'):'Resultados oficiais de '+(scope==='br'?'Brasil':'Pernambuco')+' consultados no TSE. Atualização automática a cada 30 segundos.';
+ drawTse(d);
+ document.getElementById('notice').textContent=d.sections===0?'Conexão oficial ativa. Aguardando totalização '+(scope==='br'?'nacional.':scope==='pe'?'em Pernambuco.':'em '+city+'.'):'Resultados oficiais do TSE. Atualização automática a cada 30 segundos.';
 }
-async function fetchTse(key){
+async function fetchTse(key,url){
  if(tseBusy[key])return;tseBusy[key]=true;
  try{
-  const response=await fetch(tseUrls[key]+'?t='+Date.now(),{cache:'no-store'});
+  const response=await fetch(url+'?t='+Date.now(),{cache:'no-store'});
   if(!response.ok)throw Error('HTTP '+response.status);
-  tseData[key]=parseTse(await response.json());
-  if(scope===key)showTseScope();
+  const parsed=parseTse(await response.json());
+  tseData[key]=parsed;
+  const selected=scope==='araripe'?'city:'+document.getElementById('city').value:scope;
+  if(selected===key)showTseScope();
+  if(key.startsWith('city:'))document.getElementById('city-status').textContent=key.slice(5)+': '+tseFmt(parsed.sections)+' de '+tseFmt(parsed.totalSections)+' seções totalizadas. Arquivo TSE: '+parsed.updated;
  }catch(err){
-  if(scope===key)document.getElementById('notice').textContent='Falha ao atualizar dados de '+(key==='br'?'Brasil':'Pernambuco')+'. '+(tseData[key]?'Últimos dados mantidos.':'Aguardando conexão oficial.');
- }finally{tseBusy[key]=false;}
+  const selected=scope==='araripe'?'city:'+document.getElementById('city').value:scope;
+  if(selected===key)document.getElementById('notice').textContent='Não foi possível validar uma nova atualização. '+(tseData[key]?'Últimos dados mantidos.':'Aguardando dados oficiais.');
+  if(key.startsWith('city:'))document.getElementById('city-status').textContent=key.slice(5)+': atualização indisponível ('+err.message+').';
+ }finally{tseBusy[key]=false}
 }
-document.querySelectorAll('[data-scope]').forEach(b=>b.addEventListener('click',showTseScope));
-fetchTse('br');fetchTse('pe');setInterval(()=>{fetchTse('br');fetchTse('pe')},30000);
+async function fetchSelectedCity(){
+ const city=document.getElementById('city').value;
+ try{
+  const codes=await getCityRegistry();
+  const code=codes[normalizeCity(city)];
+  if(!code)throw Error('Código eleitoral não localizado no cadastro');
+  await fetchTse('city:'+city,tseBase+'dados/pe/pe'+code+'-c0001-e006258-u.json');
+ }catch(err){
+  document.getElementById('city-status').textContent=city+': cadastro municipal indisponível ('+err.message+').';
+  if(scope==='araripe')document.getElementById('notice').textContent='Não foi possível validar a fonte municipal. Nenhum resultado novo exibido.';
+ }
+}
+document.querySelectorAll('[data-scope]').forEach(b=>b.addEventListener('click',()=>{
+ showTseScope();
+ if(b.dataset.scope==='araripe')fetchSelectedCity();
+}));
+document.getElementById('city').addEventListener('change',()=>{if(scope==='araripe')showTseScope();fetchSelectedCity()});
+fetchTse('br',tseUrls.br);fetchTse('pe',tseUrls.pe);fetchSelectedCity();
+setInterval(()=>{fetchTse('br',tseUrls.br);fetchTse('pe',tseUrls.pe);fetchSelectedCity()},30000);
 </script></body></html>
