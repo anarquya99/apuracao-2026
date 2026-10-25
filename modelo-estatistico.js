@@ -82,4 +82,33 @@ function estimate(input){
 }
 root.ConexaoModeloEstatistico.estimate=estimate;
 root.ConexaoModeloEstatistico.version='0.2.0';
+
+/* Referência de primeiro turno de 2026, por localidade.
+   A função NÃO presume transferência de votos entre candidatos.
+   Requer dados oficiais de votos válidos e seções, com procedência.
+*/
+function assessFirstRoundBaseline(input){
+ if(!input||!Array.isArray(input.units)||!input.units.length)return {status:'missing_first_round_data'};
+ const issues=[],rows=[];
+ for(const u of input.units){
+  if(!u.id||!u.source||!u.firstRound||!u.secondRound){
+   issues.push(String(u.id||'?')+': fonte ou rodada ausente');continue;
+  }
+  const a=u.firstRound,b=u.secondRound;
+  if(!Number.isFinite(a.validVotes)||a.validVotes<0||!Number.isFinite(a.sections)||a.sections<=0||
+     !Number.isFinite(b.reportedSections)||b.reportedSections<0||
+     !Number.isFinite(b.expectedSections)||b.expectedSections<=0||b.reportedSections>b.expectedSections){
+   issues.push(u.id+': dados inválidos');continue;
+  }
+  rows.push({id:u.id,source:u.source,firstRoundValidVotes:a.validVotes,firstRoundSections:a.sections,
+    secondRoundSectionsReported:b.reportedSections,secondRoundSectionsExpected:b.expectedSections,
+    firstRoundVotesPerSection:a.validVotes/a.sections,
+    secondRoundCoverage:b.reportedSections/b.expectedSections});
+ }
+ return {status:issues.length?'incomplete':'baseline_ready_for_validation',
+  rows,issues,transferAssumptions:false,estimatedOutcome:null,
+  warning:'Votos do primeiro turno são referência de escala e distribuição, não transferência automática nem previsão do segundo turno.'};
+}
+root.ConexaoModeloEstatistico.assessFirstRoundBaseline=assessFirstRoundBaseline;
+root.ConexaoModeloEstatistico.version='0.3.0';
 })(typeof window!=='undefined'?window:globalThis);
