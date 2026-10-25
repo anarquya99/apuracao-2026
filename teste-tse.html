@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Teste TSE | Conexão Sertão</title><style>body{font:16px system-ui;background:#f4f5f8;color:#192033;margin:0;padding:24px}main{max-width:750px;margin:auto;background:white;border-radius:18px;padding:24px}button{background:#ff8914;border:0;border-radius:10px;padding:14px;font-weight:bold}pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#f4f5f8;padding:15px;border-radius:10px}small{color:#667085}</style></head><body><main><h1>Conexão Sertão | Teste de conexão TSE</h1><p>Esta página é separada da Central de Apuração e não publica votos. Faz apenas uma tentativa de leitura de um arquivo oficial do 2º turno de 2026.</p><p><strong>Eleição presidencial:</strong> código 6258. <strong>Fonte:</strong> resultados.tse.jus.br</p><button id="testar">Testar conexão oficial</button><p id="status" role="status">Teste ainda não iniciado.</p><pre id="detalhes">Nenhuma consulta realizada.</pre><small>Se houver bloqueio CORS, erro 404 ou outro problema, nenhum resultado será exibido. A integração definitiva depende de validar o endereço e a estrutura dos dados.</small></main><script>
+const url='https://resultados.tse.jus.br/oficial/ele2026/6258/dados/br/br-c0001-e006258-u.json';
+document.getElementById('testar').addEventListener('click',async()=>{
+ const status=document.getElementById('status'),out=document.getElementById('detalhes');
+ status.textContent='Consultando o servidor do TSE...';out.textContent='Endereço: '+url;
+ const ctrl=new AbortController(),timer=setTimeout(()=>ctrl.abort(),12000);
+ try{
+  const response=await fetch(url,{cache:'no-store',signal:ctrl.signal});
+  if(!response.ok)throw Error('HTTP '+response.status);
+  const data=await response.json();
+  status.textContent='Conexão e leitura JSON realizadas. Ainda é necessário validar o conteúdo antes de exibir votos.';
+  out.textContent='Endereço: '+url+'\nHTTP: '+response.status+'\nChaves do JSON: '+Object.keys(data).slice(0,40).join(', ')+'\nHorário local do teste: '+new Date().toLocaleString('pt-BR');
+ }catch(e){
+  status.textContent='Conexão não validada. Nenhum resultado foi publicado.';
+  out.textContent='Endereço: '+url+'\nErro: '+e.message+'\nPossíveis causas: caminho ainda indisponível, bloqueio CORS ou falha de rede.';
+ }finally{clearTimeout(timer)}
+});
+</script></body></html>
