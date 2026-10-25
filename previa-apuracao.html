@@ -1,0 +1,32 @@
+<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Prévia oficial | Conexão Sertão</title><style>body{font:16px system-ui;background:#f4f5f8;color:#192033;margin:0}header{background:#101827;color:#fff;padding:22px}header b{color:#ff9015}main{max-width:760px;margin:auto;padding:18px}.card{background:white;border:1px solid #e3e7ee;border-radius:16px;padding:20px;margin:14px 0}.row{display:flex;justify-content:space-between;gap:12px;padding:16px 0;border-bottom:1px solid #eee}.row:last-child{border:0}.big{font-size:25px;font-weight:800}.muted{color:#667085}.bar{height:12px;background:#e7eaf0;border-radius:12px;overflow:hidden}.fill{height:100%;background:#ff8914;width:0}button{border:0;border-radius:10px;padding:12px;background:#ff8914;font-weight:700}#notice{padding:14px;background:#fff2e1;border-radius:8px}</style></head><body><header><strong>CONEXÃO <b>SERTÃO</b></strong><div>Teste isolado de leitura dos resultados oficiais</div></header><main><h1>Prévia da apuração presidencial</h1><p class="muted">Brasil | Segundo turno de 2026</p><div id="notice" role="status">Iniciando conexão...</div><div class="card"><h2>Resultados oficiais do TSE</h2><div id="results">Aguardando leitura...</div><p>Seções totalizadas: <strong id="sections">Aguardando</strong></p><div class="bar"><div class="fill" id="fill"></div></div><p class="muted" id="updated">Sem atualização confirmada</p></div><button id="refresh">Consultar agora</button><p class="muted">Consulta automática a cada 30 segundos enquanto esta página estiver aberta. Este é um teste independente e não altera o painel principal. Não confundir o horário da consulta com o horário de atualização do TSE.</p><p><a href="https://resultados.tse.jus.br/" target="_blank" rel="noopener">Conferir no TSE</a></p></main><script>
+const url='https://resultados.tse.jus.br/oficial/ele2026/6258/dados/br/br-c0001-e006258-u.json';
+const fmt=n=>Number(n).toLocaleString('pt-BR');
+const pct=s=>String(s??'0,00')+'%';
+let busy=false;
+async function load(){
+ if(busy)return;busy=true;
+ const notice=document.getElementById('notice');
+ try{
+  const res=await fetch(url+'?t='+Date.now(),{cache:'no-store'});
+  if(!res.ok)throw Error('HTTP '+res.status);
+  const d=await res.json();
+  if(String(d.ele)!=='6258'||String(d.t)!=='2')throw Error('Identificação da eleição não confere');
+  const c=d.carg?.find(x=>String(x.cd)==='1');
+  const candidates=(c?.agr||[]).flatMap(a=>(a.par||[]).flatMap(p=>p.cand||[]));
+  const lula=candidates.find(x=>String(x.n)==='13'),flavio=candidates.find(x=>String(x.n)==='22');
+  if(!lula||!flavio||!d.s)throw Error('Campos de candidatos ou totalização não encontrados');
+  const total=Number(d.v?.vv||0),count=Number(d.s.st||0);
+  if(!Number.isFinite(total)||!Number.isFinite(count))throw Error('Totais inválidos');
+  const validVotes=candidates.reduce((sum,x)=>sum+Number(x.vap||0),0);
+  if(validVotes>0&&total>0&&validVotes>total)throw Error('Soma de votos incompatível');
+  document.getElementById('results').innerHTML=[lula,flavio].map(x=>'<div class="row"><div><strong>'+ (String(x.n)==='13'?'Lula':'Flávio Bolsonaro')+'</strong><div class="muted">'+pct(x.pvap)+' dos votos válidos</div></div><div class="big">'+fmt(x.vap||0)+'</div></div>').join('');
+  document.getElementById('sections').textContent=fmt(count)+' de '+fmt(d.s.ts||0)+' ('+pct(d.s.pst)+')';
+  document.getElementById('fill').style.width=Math.min(100,Math.max(0,Number(String(d.s.pst||'0').replace(',','.'))))+'%';
+  document.getElementById('updated').textContent='Arquivo TSE: '+(d.dt||d.dg||'data não informada')+' '+(d.ht||d.hg||'')+' | Consulta: '+new Date().toLocaleTimeString('pt-BR');
+  notice.textContent=count===0?'Conexão confirmada. O arquivo consultado ainda registra zero seções totalizadas.':'Dados oficiais carregados. Confira a atualização no portal do TSE.';
+ }catch(e){notice.textContent='Falha na atualização: '+e.message+'. Mantidos os últimos números exibidos, se houver.';}
+ finally{busy=false;}
+}
+document.getElementById('refresh').addEventListener('click',load);
+load();setInterval(load,30000);
+</script></body></html>
