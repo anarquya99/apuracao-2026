@@ -1,0 +1,23 @@
+<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Teste Pernambuco | Conexão Sertão</title><style>body{margin:0;background:#f4f5f8;color:#192033;font:16px system-ui}header{background:#101827;color:white;padding:22px}header b{color:#ff9015}main{max-width:740px;margin:auto;padding:18px}.card{background:white;border-radius:18px;padding:20px;margin:15px 0}.row{display:flex;justify-content:space-between;gap:15px;padding:14px 0;border-bottom:1px solid #eee}.big{font-size:25px;font-weight:800}button{padding:12px;border:0;border-radius:9px;background:#ff8914;font-weight:bold}#status{background:#fff2e1;padding:14px;border-radius:9px}small{color:#667085}</style></head><body><header>CONEXÃO <b>SERTÃO</b><div>Teste separado • Pernambuco</div></header><main><h1>Pernambuco • Presidente</h1><p>Validação da fonte estadual do TSE, sem alterar a Central de Apuração principal.</p><div id="status">Consultando arquivo estadual...</div><div class="card"><div id="results">Aguardando dados oficiais.</div><p id="sections">Seções: aguardando</p><small id="updated">Sem atualização confirmada</small></div><button id="refresh">Consultar novamente</button><p><small>Atualização automática a cada 30 segundos enquanto esta página estiver aberta. Se a fonte não responder ou a estrutura não conferir, nenhum número será publicado. Municípios do Araripe serão integrados somente depois de confirmar os códigos oficiais de cada cidade.</small></p><a href="https://resultados.tse.jus.br/">Fonte oficial TSE</a></main><script>
+const endpoint='https://resultados.tse.jus.br/oficial/ele2026/6258/dados/pe/pe-c0001-e006258-u.json';
+let busy=false;
+async function load(){
+ if(busy)return;busy=true;
+ try{
+  const r=await fetch(endpoint+'?t='+Date.now(),{cache:'no-store'});if(!r.ok)throw Error('HTTP '+r.status);
+  const d=await r.json();
+  if(String(d.ele)!=='6258'||String(d.t)!=='2')throw Error('Identificação da eleição não confere');
+  const office=(d.carg||[]).find(c=>String(c.cd)==='1');
+  const people=(office?.agr||[]).flatMap(a=>(a.par||[]).flatMap(p=>p.cand||[]));
+  const a=people.find(x=>String(x.n)==='13'),b=people.find(x=>String(x.n)==='22');
+  const sections=Number(d.s?.st),total=Number(d.s?.ts);
+  if(!a||!b||!Number.isFinite(sections)||!Number.isFinite(total)||total<=0||sections<0||sections>total||[a,b].some(c=>!Number.isFinite(Number(c.vap))||Number(c.vap)<0))throw Error('Estrutura ou totalização não validada');
+  document.getElementById('results').innerHTML=[[a,'Lula'],[b,'Flávio Bolsonaro']].map(([c,n])=>'<div class="row"><div><strong>'+n+'</strong><div><small>'+String(c.pvap||'0,00')+'% dos válidos</small></div></div><strong class="big">'+Number(c.vap).toLocaleString('pt-BR')+'</strong></div>').join('');
+  document.getElementById('sections').textContent='Seções totalizadas: '+sections.toLocaleString('pt-BR')+' de '+total.toLocaleString('pt-BR')+' ('+(sections/total*100).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2})+'%)';
+  document.getElementById('updated').textContent='Arquivo TSE: '+(d.dt||d.dg||'')+' '+(d.ht||d.hg||'')+' | Consulta '+new Date().toLocaleTimeString('pt-BR');
+  document.getElementById('status').textContent=sections?'Dados estaduais recebidos. Confira com o TSE.':'Conexão estadual confirmada. Aguardando totalização.';
+ }catch(e){document.getElementById('status').textContent='Fonte estadual ainda não validada: '+e.message+'. Nenhum número novo foi exibido.';}
+ finally{busy=false;}
+}
+document.getElementById('refresh').addEventListener('click',load);load();setInterval(load,30000);
+</script></body></html>
