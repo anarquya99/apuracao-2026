@@ -1,0 +1,59 @@
+<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Teste Araripe | Conexão Sertão</title><style>body{margin:0;background:#f4f5f8;color:#192033;font:16px system-ui}header{background:#101827;color:#fff;padding:22px}header b{color:#ff9015}main{max-width:760px;margin:auto;padding:18px}.card{background:#fff;border-radius:17px;padding:19px;margin:15px 0}#status{background:#fff1de;border-radius:9px;padding:15px;white-space:pre-wrap}.row{display:flex;justify-content:space-between;padding:12px 0;border-bottom:1px solid #eee}select,button{font:inherit;padding:12px;border-radius:10px;border:1px solid #ddd}button{background:#ff9015;border:0;font-weight:700}small{color:#667085}</style></head><body><header>CONEXÃO <b>SERTÃO</b><div>Teste isolado • Municípios do Araripe</div></header><main><h1>Apuração municipal</h1><p>Consulta ao cadastro oficial de municípios do TSE para identificar os códigos corretos antes de exibir votos.</p><div id="status">Consultando cadastro oficial...</div><div class="card"><label for="city">Município</label><p><select id="city"><option>Ipubi</option><option>Araripina</option><option>Ouricuri</option><option>Trindade</option><option>Exu</option><option>Bodocó</option><option>Granito</option><option>Moreilândia</option><option>Santa Cruz</option><option>Santa Filomena</option></select></p><p id="code">Código eleitoral: aguardando cadastro</p><div id="results">Aguardando validação do município.</div><p id="sections"></p><small id="updated"></small></div><button id="refresh">Consultar novamente</button><p><small>Este teste não altera o site principal. Atualização a cada 30 segundos, somente após identificação oficial do código do município.</small></p></main><script>
+const base='https://resultados.tse.jus.br/oficial/ele2026/6258/';
+const wanted=['Ipubi','Araripina','Ouricuri','Trindade','Exu','Bodocó','Granito','Moreilândia','Santa Cruz','Santa Filomena'];
+const normalize=s=>String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toUpperCase().trim();
+const fmt=n=>Number(n).toLocaleString('pt-BR');
+let registry=null,busy=false;
+function findCities(root){
+ const out=[];const seen=new Set();
+ function visit(v,depth){
+  if(depth>12||!v||typeof v!=='object'||seen.has(v))return;seen.add(v);
+  if(Array.isArray(v)){for(const x of v)visit(x,depth+1);return;}
+  const vals=Object.entries(v);
+  const nameEntry=vals.find(([k,val])=>typeof val==='string'&&wanted.some(n=>normalize(val)===normalize(n)));
+  if(nameEntry){
+   const candidates=vals.filter(([k,val])=>typeof val==='string'||typeof val==='number').filter(([k,val])=>/^(cd|c|codigo|cod|cm|cdmun|cdmu|codigoMunicipio|codigoTse|cdtse)$/i.test(k));
+   out.push({name:nameEntry[1],fields:Object.fromEntries(candidates),raw:Object.fromEntries(vals.filter(([k,v])=>typeof v==='string'||typeof v==='number').slice(0,12))});
+  }
+  for(const [,x] of vals)if(x&&typeof x==='object')visit(x,depth+1);
+ }
+ visit(root,0);return out;
+}
+async function loadRegistry(){
+ const res=await fetch(base+'config/mun-e006258-cm.json?t='+Date.now(),{cache:'no-store'});
+ if(!res.ok)throw Error('Cadastro de municípios: HTTP '+res.status);
+ const d=await res.json();registry=findCities(d);
+ if(!registry.length)throw Error('Cadastro acessível, mas campos dos municípios não reconhecidos. Estrutura: '+Object.keys(d).join(', '));
+}
+async function load(){
+ if(busy)return;busy=true;
+ const status=document.getElementById('status');
+ try{
+  if(!registry)await loadRegistry();
+  const city=document.getElementById('city').value;
+  const found=registry.find(x=>normalize(x.name)===normalize(city));
+  if(!found)throw Error('Município '+city+' não localizado no cadastro. Encontrados: '+registry.map(x=>x.name).join(', '));
+  const entries=Object.entries(found.fields);
+  const candidate=entries.find(([k,v])=>/^cd$/i.test(k))||entries.find(([k,v])=>/^(c|cod|codigo|cm|cdmun|cdmu|codigoTse|cdtse)$/i.test(k));
+  const code=candidate?String(candidate[1]).padStart(5,'0'):null;
+  document.getElementById('code').textContent='Registro oficial: '+JSON.stringify(found.raw)+' | Código identificado: '+(code||'não identificado');
+  if(!code||!/^\d{5}$/.test(code))throw Error('Código eleitoral não confirmado; nenhum arquivo municipal foi consultado');
+  const url=base+'dados/pe/pe'+code+'-c0001-e006258-u.json';
+  const res=await fetch(url+'?t='+Date.now(),{cache:'no-store'});
+  if(!res.ok)throw Error('Arquivo municipal HTTP '+res.status+' ('+code+')');
+  const d=await res.json();
+  if(String(d.ele)!=='6258'||String(d.t)!=='2')throw Error('Identificação da eleição inválida');
+  const office=(d.carg||[]).find(c=>String(c.cd)==='1');
+  const people=(office?.agr||[]).flatMap(a=>(a.par||[]).flatMap(p=>p.cand||[]));
+  const a=people.find(x=>String(x.n)==='13'),b=people.find(x=>String(x.n)==='22');
+  const st=Number(d.s?.st),ts=Number(d.s?.ts);
+  if(!a||!b||!Number.isFinite(st)||!Number.isFinite(ts)||ts<=0||st<0||st>ts||[a,b].some(c=>!Number.isFinite(Number(c.vap))||Number(c.vap)<0))throw Error('Estrutura dos votos não validada');
+  document.getElementById('results').innerHTML=[[a,'Lula'],[b,'Flávio Bolsonaro']].map(([c,n])=>'<div class="row"><div><b>'+n+'</b><div><small>'+String(c.pvap||'0,00')+'% dos válidos</small></div></div><b>'+fmt(c.vap)+'</b></div>').join('');
+  document.getElementById('sections').textContent='Seções totalizadas: '+fmt(st)+' de '+fmt(ts)+' ('+(st/ts*100).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2})+'%)';
+  document.getElementById('updated').textContent='Arquivo TSE: '+(d.dt||d.dg||'')+' '+(d.ht||d.hg||'');
+  status.textContent=st?'Arquivo oficial municipal validado.':'Conexão municipal confirmada. Aguardando totalização.';
+ }catch(e){status.textContent='Validação pendente: '+e.message;document.getElementById('results').textContent='Nenhum resultado municipal novo confirmado.';document.getElementById('sections').textContent='';}
+ finally{busy=false}
+}
+document.getElementById('refresh').addEventListener('click',load);document.getElementById('city').addEventListener('change',load);load();setInterval(load,30000);
+</script></body></html>
