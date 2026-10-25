@@ -42,4 +42,44 @@
   return {status:done===0?'awaiting_data':'experimental_unvalidated',coverage:done/total,reportedSections:done,expectedSections:total,regions,warnings,forecast:null};
  }
  root.ConexaoModeloEstatistico={version:'0.1.0',evaluate};
+
+/* Estimador experimental por pós-estratificação.
+   Exige que observedVotes represente uma amostra representativa da unidade.
+   historicalValidVotes é proxy de tamanho, não previsão de comparecimento.
+   O método retorna somente resultados técnicos, nunca chamadas eleitorais.
+   Intervalos NÃO são calculados até existir calibração com backtesting.
+*/
+function estimate(input){
+ const validation=evaluate(input);
+ if(validation.status==='invalid_input'||validation.status==='insufficient_data')return validation;
+ const units=input.units;
+ const candidates=[...new Set(units.flatMap(u=>Object.keys(u.historicalShares)))];
+ const result=Object.fromEntries(candidates.map(k=>[k,0]));
+ let estimatedTotal=0,observedTotal=0,usable=0;
+ const diagnostics=[];
+ for(const u of units){
+  const progress=u.reportedSections/u.expectedSections;
+  const obs=Object.values(u.observedVotes).reduce((a,v)=>a+Number(v||0),0);
+  const expected=u.historicalValidVotes;
+  const prior=u.historicalShares;
+  const minSections=Math.max(5,Math.ceil(u.expectedSections*0.05));
+  const reliable=u.reportedSections>=minSections&&obs>0;
+  const effective=Math.min(obs,Math.max(0,expected*0.12));
+  const weight=reliable?effective/(effective+Math.max(1,expected*0.04)):0;
+  const remaining=Math.max(0,expected-obs);
+  for(const k of candidates){
+   const observed=Number(u.observedVotes[k]||0);
+   const observedShare=obs?observed/obs:0;
+   const share=weight*observedShare+(1-weight)*(prior[k]||0);
+   result[k]+=observed+remaining*share;
+  }
+  estimatedTotal+=Math.max(expected,obs);
+  observedTotal+=obs;
+  if(reliable)usable++;
+  diagnostics.push({id:u.id,progress,usable:reliable,observedValidVotes:obs,baselineValidVotes:expected});
+ }
+ return {status:'experimental_unvalidated',method:'poststratification_shrinkage_v0.2',estimatedVotes:result,estimatedTotalValidVotes:estimatedTotal,observedValidVotes:observedTotal,unitsWithUsableSample:usable,totalUnits:units.length,diagnostics,coverage:validation.coverage,regions:validation.regions,intervals:null,publicRelease:false,warnings:[...validation.warnings,'Estimativa de participação e de viés da ordem de apuração não calibradas','Intervalos de confiança indisponíveis: backtesting necessário']};
+}
+root.ConexaoModeloEstatistico.estimate=estimate;
+root.ConexaoModeloEstatistico.version='0.2.0';
 })(typeof window!=='undefined'?window:globalThis);
